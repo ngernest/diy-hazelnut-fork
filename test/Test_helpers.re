@@ -90,7 +90,12 @@ let test_inconsistent_arrow_mismatch = () =>
   );
 
 let test_not_inconsistent_num_num = () =>
-  check(bool, "num consistent with num", Hazelnut.inconsistent(Num, Num), false);
+  check(
+    bool,
+    "num consistent with num",
+    Hazelnut.inconsistent(Num, Num),
+    false,
+  );
 
 let test_not_inconsistent_hole = () =>
   check(
@@ -119,7 +124,11 @@ let ma_eq =
 let ma_print = (v: option((Hazelnut.Htyp.t, Hazelnut.Htyp.t))): string =>
   switch (v) {
   | Some((t1, t2)) =>
-    "Some((" ++ Hazelnut.Htyp.show(t1) ++ ", " ++ Hazelnut.Htyp.show(t2) ++ "))"
+    "Some(("
+    ++ Hazelnut.Htyp.show(t1)
+    ++ ", "
+    ++ Hazelnut.Htyp.show(t2)
+    ++ "))"
   | None => "None"
   };
 
@@ -142,12 +151,7 @@ let test_matched_arrow_hole = () =>
   );
 
 let test_matched_arrow_num = () =>
-  check(
-    ma_typ,
-    "Num => None",
-    Hazelnut.matched_arrow(Num),
-    None,
-  );
+  check(ma_typ, "Num => None", Hazelnut.matched_arrow(Num), None);
 
 let test_matched_arrow_nested = () =>
   check(
@@ -162,8 +166,7 @@ let test_matched_arrow_nested = () =>
 let htyp_eq = (a: Hazelnut.Htyp.t, b: Hazelnut.Htyp.t): bool =>
   Hazelnut.Htyp.compare(a, b) == 0;
 
-let htyp_typ =
-  testable(Fmt.using(Hazelnut.Htyp.show, Fmt.string), htyp_eq);
+let htyp_typ = testable(Fmt.using(Hazelnut.Htyp.show, Fmt.string), htyp_eq);
 
 let test_erase_typ_cursor = () =>
   check(
@@ -213,7 +216,11 @@ let helpers_tests = [
   ("consistent_hole_hole", `Quick, test_consistent_hole_hole),
   ("consistent_arrow_arrow", `Quick, test_consistent_arrow_arrow),
   ("consistent_arrow_hole_domain", `Quick, test_consistent_arrow_hole_domain),
-  ("consistent_arrow_hole_codomain", `Quick, test_consistent_arrow_hole_codomain),
+  (
+    "consistent_arrow_hole_codomain",
+    `Quick,
+    test_consistent_arrow_hole_codomain,
+  ),
   ("consistent_hole_arrow", `Quick, test_consistent_hole_arrow),
   ("consistent_nested_arrows", `Quick, test_consistent_nested_arrows),
   // inconsistent

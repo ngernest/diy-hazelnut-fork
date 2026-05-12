@@ -31,8 +31,7 @@ type typctx = Hazelnut.TypCtx.t(Hazelnut.Htyp.t);
 // Del inside expression of an ascription.
 let test_sazipasc1_del = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    LAsc(Cursor(Plus(Lit(1), Lit(2))), Num);
+  let ze: Hazelnut.Zexp.t = LAsc(Cursor(Plus(Lit(1), Lit(2))), Num);
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Del;
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -44,8 +43,7 @@ let test_sazipasc1_del = () => {
 // Construct(Var) inside expression of an ascription (via analytic dispatch).
 let test_sazipasc1_convar = () => {
   let ctx: typctx = TypCtx.singleton("x", Hazelnut.Htyp.Num);
-  let ze: Hazelnut.Zexp.t =
-    LAsc(Cursor(EHole), Num);
+  let ze: Hazelnut.Zexp.t = LAsc(Cursor(EHole), Num);
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Construct(Var("x"));
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -57,8 +55,7 @@ let test_sazipasc1_convar = () => {
 // Construct(Lam) inside ascription at Arrow type: AAConLam1 kicks in.
 let test_sazipasc1_conlam = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    LAsc(Cursor(EHole), Arrow(Num, Num));
+  let ze: Hazelnut.Zexp.t = LAsc(Cursor(EHole), Arrow(Num, Num));
   let t: Hazelnut.Htyp.t = Arrow(Num, Num);
   let a: Hazelnut.Action.t = Construct(Lam("x"));
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -73,8 +70,7 @@ let test_sazipasc1_conlam = () => {
 // SAZIPASC1 with cursor deep inside a lambda body (via AAZipLam).
 let test_sazipasc1_deep_lam = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    LAsc(Lam("x", Cursor(EHole)), Arrow(Num, Num));
+  let ze: Hazelnut.Zexp.t = LAsc(Lam("x", Cursor(EHole)), Arrow(Num, Num));
   let t: Hazelnut.Htyp.t = Arrow(Num, Num);
   let a: Hazelnut.Action.t = Construct(Lit(1));
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -90,8 +86,7 @@ let test_sazipasc1_deep_lam = () => {
 // binds x, so we use x:Num from the arrow type, not from ctx.
 let test_sazipasc1_bound_var = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    LAsc(Lam("x", Cursor(EHole)), Arrow(Num, Num));
+  let ze: Hazelnut.Zexp.t = LAsc(Lam("x", Cursor(EHole)), Arrow(Num, Num));
   let t: Hazelnut.Htyp.t = Arrow(Num, Num);
   let a: Hazelnut.Action.t = Construct(Var("x"));
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -114,8 +109,7 @@ let test_sazipasc1_bound_var = () => {
 // The expression Lam("x", Lit(1)) must re-check against Arrow(Num, Hole).
 let test_sazipasc2_conarrow = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    RAsc(Lam("x", Lit(1)), Cursor(Num));
+  let ze: Hazelnut.Zexp.t = RAsc(Lam("x", Lit(1)), Cursor(Num));
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Construct(Arrow);
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -177,8 +171,7 @@ let test_sazipasc2_del_in_arrow = () => {
 // So it should fail (return None).
 let test_sazipasc2_recheck_fails = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    RAsc(Plus(Lit(1), Lit(2)), Cursor(Num));
+  let ze: Hazelnut.Zexp.t = RAsc(Plus(Lit(1), Lit(2)), Cursor(Num));
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Construct(Arrow);
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -190,16 +183,12 @@ let test_sazipasc2_recheck_fails = () => {
 // Cursor on the outer ascription type.
 let test_sazipasc2_compound_body = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    RAsc(Lit(1), Cursor(Hole));
+  let ze: Hazelnut.Zexp.t = RAsc(Lit(1), Cursor(Hole));
   let t: Hazelnut.Htyp.t = Hole;
   let a: Hazelnut.Action.t = Construct(Num);
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
-    Some((
-      Hazelnut.Zexp.RAsc(Lit(1), Cursor(Num)),
-      Hazelnut.Htyp.Num,
-    ));
+    Some((Hazelnut.Zexp.RAsc(Lit(1), Cursor(Num)), Hazelnut.Htyp.Num));
   check(zexp_htyp, "same", given, expected);
 };
 
@@ -221,18 +210,14 @@ let test_sazipaparr_del = () => {
   let a: Hazelnut.Action.t = Del;
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
-    Some((
-      Hazelnut.Zexp.LAp(Cursor(EHole), Lit(1)),
-      Hazelnut.Htyp.Hole,
-    ));
+    Some((Hazelnut.Zexp.LAp(Cursor(EHole), Lit(1)), Hazelnut.Htyp.Hole));
   check(zexp_htyp, "same", given, expected);
 };
 
 // Construct(Asc) on function: f → f : ▶(Num→Num)◀. Type unchanged.
 let test_sazipaparr_conasc = () => {
   let ctx: typctx = TypCtx.singleton("f", Hazelnut.Htyp.Arrow(Num, Num));
-  let ze: Hazelnut.Zexp.t =
-    LAp(Cursor(Var("f")), Plus(Lit(1), Lit(2)));
+  let ze: Hazelnut.Zexp.t = LAp(Cursor(Var("f")), Plus(Lit(1), Lit(2)));
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Construct(Asc);
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -286,8 +271,7 @@ let test_sazipaparr_connehole = () => {
 let test_sazipaparr_nested = () => {
   let ctx: typctx =
     TypCtx.singleton("f", Hazelnut.Htyp.Arrow(Num, Arrow(Num, Num)));
-  let ze: Hazelnut.Zexp.t =
-    LAp(RAp(Var("f"), Cursor(Lit(1))), Lit(2));
+  let ze: Hazelnut.Zexp.t = LAp(RAp(Var("f"), Cursor(Lit(1))), Lit(2));
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Del;
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -315,10 +299,7 @@ let test_sazipapana_del = () => {
   let a: Hazelnut.Action.t = Del;
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
-    Some((
-      Hazelnut.Zexp.RAp(Var("f"), Cursor(EHole)),
-      Hazelnut.Htyp.Num,
-    ));
+    Some((Hazelnut.Zexp.RAp(Var("f"), Cursor(EHole)), Hazelnut.Htyp.Num));
   check(zexp_htyp, "same", given, expected);
 };
 
@@ -381,10 +362,7 @@ let test_sazipapana_hole_fn = () => {
   let a: Hazelnut.Action.t = Construct(Lit(5));
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
-    Some((
-      Hazelnut.Zexp.RAp(EHole, Cursor(Lit(5))),
-      Hazelnut.Htyp.Hole,
-    ));
+    Some((Hazelnut.Zexp.RAp(EHole, Cursor(Lit(5))), Hazelnut.Htyp.Hole));
   check(zexp_htyp, "same", given, expected);
 };
 
@@ -397,16 +375,12 @@ let test_sazipapana_hole_fn = () => {
 // Del left of plus: erases to EHole. EHole still ana at Num.
 let test_sazipplus1_del = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    LPlus(Cursor(Plus(Lit(1), Lit(2))), Lit(3));
+  let ze: Hazelnut.Zexp.t = LPlus(Cursor(Plus(Lit(1), Lit(2))), Lit(3));
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Del;
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
-    Some((
-      Hazelnut.Zexp.LPlus(Cursor(EHole), Lit(3)),
-      Hazelnut.Htyp.Num,
-    ));
+    Some((Hazelnut.Zexp.LPlus(Cursor(EHole), Lit(3)), Hazelnut.Htyp.Num));
   check(zexp_htyp, "same", given, expected);
 };
 
@@ -428,8 +402,7 @@ let test_sazipplus1_conplus = () => {
 // Construct(Var) in left of plus: compound right side.
 let test_sazipplus1_convar = () => {
   let ctx: typctx = TypCtx.singleton("x", Hazelnut.Htyp.Num);
-  let ze: Hazelnut.Zexp.t =
-    LPlus(Cursor(EHole), Plus(Lit(2), Lit(3)));
+  let ze: Hazelnut.Zexp.t = LPlus(Cursor(EHole), Plus(Lit(2), Lit(3)));
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Construct(Var("x"));
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -444,8 +417,7 @@ let test_sazipplus1_convar = () => {
 // Left operand is itself a Plus with cursor deep inside.
 let test_sazipplus1_nested = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    LPlus(RPlus(Lit(1), Cursor(Lit(2))), Lit(3));
+  let ze: Hazelnut.Zexp.t = LPlus(RPlus(Lit(1), Cursor(Lit(2))), Lit(3));
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Del;
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -466,8 +438,7 @@ let test_sazipplus1_nested = () => {
 // Del right of plus.
 let test_sazipplus2_del = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    RPlus(Plus(Lit(1), Lit(2)), Cursor(Lit(3)));
+  let ze: Hazelnut.Zexp.t = RPlus(Plus(Lit(1), Lit(2)), Cursor(Lit(3)));
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Del;
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -482,8 +453,7 @@ let test_sazipplus2_del = () => {
 // Construct(Lit) on right side's EHole.
 let test_sazipplus2_conlit = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    RPlus(Plus(Lit(1), Lit(2)), Cursor(EHole));
+  let ze: Hazelnut.Zexp.t = RPlus(Plus(Lit(1), Lit(2)), Cursor(EHole));
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Construct(Lit(99));
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -513,8 +483,7 @@ let test_sazipplus2_conplus = () => {
 // Right operand is an Ap(f, x): compound non-value form.
 let test_sazipplus2_compound = () => {
   let ctx: typctx = TypCtx.singleton("f", Hazelnut.Htyp.Arrow(Num, Num));
-  let ze: Hazelnut.Zexp.t =
-    RPlus(Lit(1), RAp(Var("f"), Cursor(EHole)));
+  let ze: Hazelnut.Zexp.t = RPlus(Lit(1), RAp(Var("f"), Cursor(EHole)));
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Construct(Lit(2));
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -544,10 +513,7 @@ let test_saziphole_del = () => {
   let a: Hazelnut.Action.t = Del;
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
-    Some((
-      Hazelnut.Zexp.NEHole(Cursor(EHole)),
-      Hazelnut.Htyp.Hole,
-    ));
+    Some((Hazelnut.Zexp.NEHole(Cursor(EHole)), Hazelnut.Htyp.Hole));
   check(zexp_htyp, "same", given, expected);
 };
 
@@ -600,16 +566,12 @@ let test_saziphole_nested = () => {
 // Finish inside NEHole: removes inner hole. Outer stays as NEHole.
 let test_saziphole_finish = () => {
   let ctx: typctx = TypCtx.singleton("x", Hazelnut.Htyp.Num);
-  let ze: Hazelnut.Zexp.t =
-    NEHole(Cursor(NEHole(Var("x"))));
+  let ze: Hazelnut.Zexp.t = NEHole(Cursor(NEHole(Var("x"))));
   let t: Hazelnut.Htyp.t = Hole;
   let a: Hazelnut.Action.t = Finish;
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
-    Some((
-      Hazelnut.Zexp.NEHole(Cursor(Var("x"))),
-      Hazelnut.Htyp.Hole,
-    ));
+    Some((Hazelnut.Zexp.NEHole(Cursor(Var("x"))), Hazelnut.Htyp.Hole));
   check(zexp_htyp, "same", given, expected);
 };
 

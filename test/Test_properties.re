@@ -48,8 +48,7 @@ let check_sensibility =
         htyp_eq(t_syn, t'),
         true,
       )
-    | None =>
-      fail(label ++ ": erased result fails to synthesize any type")
+    | None => fail(label ++ ": erased result fails to synthesize any type")
     };
   | None => fail(label ++ ": action unexpectedly failed (returned None)")
   };
@@ -74,12 +73,7 @@ let check_move_invariance =
       erased_before,
       erased_after,
     );
-    check(
-      bool,
-      label ++ ": type unchanged",
-      htyp_eq(t, t'),
-      true,
-    );
+    check(bool, label ++ ": type unchanged", htyp_eq(t, t'), true);
   | None => fail(label ++ ": move unexpectedly failed")
   };
 };

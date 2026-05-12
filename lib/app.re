@@ -201,7 +201,9 @@ let check_for_theorem_violation =
               ++ " to "
               ++ string_of_htyp(t');
             };
-          Some("Theorem 2 violation (Movement erasure invariance): " ++ detail);
+          Some(
+            "Theorem 2 violation (Movement erasure invariance): " ++ detail,
+          );
         };
       | _ => None
       };
@@ -353,9 +355,7 @@ let view =
         Some(
           Node.p(
             ~attrs=[
-              Attr.style(
-                Css_gen.create(~field="color", ~value="#666")
-              ),
+              Attr.style(Css_gen.create(~field="color", ~value="#666")),
             ],
             [
               Node.textf(
@@ -373,7 +373,9 @@ let view =
       Node.div(
         [
           Node.p([Node.textf("%s", string_of_pexp(pexp_of_zexp(state.e)))]),
-          Node.p([Node.textf("%s", string_of_pexp(pexp_of_htyp(state.t)))]),
+          Node.p([
+            Node.textf("%s", string_of_pexp(pexp_of_htyp(state.t))),
+          ]),
         ]
         @ (
           switch (cursor_erasure) {

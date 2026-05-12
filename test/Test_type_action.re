@@ -151,34 +151,26 @@ let test_type_zip2_conarrow = () => {
 // TMARRZIP1: Del inside left of arrow erases type to Hole.
 let test_type_zip1_del = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    RAsc(EHole, LArrow(Cursor(Num), Num));
+  let ze: Hazelnut.Zexp.t = RAsc(EHole, LArrow(Cursor(Num), Num));
   let t: Hazelnut.Htyp.t = Arrow(Num, Num);
   let a: Hazelnut.Action.t = Del;
   let given: option((Hazelnut.Zexp.t, Hazelnut.Htyp.t)) =
     Hazelnut.syn_action(ctx, (ze, t), a);
   let expected: option((Hazelnut.Zexp.t, Hazelnut.Htyp.t)) =
-    Some((
-      RAsc(EHole, LArrow(Cursor(Hole), Num)),
-      Arrow(Hole, Num),
-    ));
+    Some((RAsc(EHole, LArrow(Cursor(Hole), Num)), Arrow(Hole, Num)));
   check(zexp_htyp, "same", given, expected);
 };
 
 // TMARRZIP2: Del inside right of arrow.
 let test_type_zip2_del = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    RAsc(EHole, RArrow(Num, Cursor(Num)));
+  let ze: Hazelnut.Zexp.t = RAsc(EHole, RArrow(Num, Cursor(Num)));
   let t: Hazelnut.Htyp.t = Arrow(Num, Num);
   let a: Hazelnut.Action.t = Del;
   let given: option((Hazelnut.Zexp.t, Hazelnut.Htyp.t)) =
     Hazelnut.syn_action(ctx, (ze, t), a);
   let expected: option((Hazelnut.Zexp.t, Hazelnut.Htyp.t)) =
-    Some((
-      RAsc(EHole, RArrow(Num, Cursor(Hole))),
-      Arrow(Num, Hole),
-    ));
+    Some((RAsc(EHole, RArrow(Num, Cursor(Hole))), Arrow(Num, Hole)));
   check(zexp_htyp, "same", given, expected);
 };
 
@@ -186,20 +178,14 @@ let test_type_zip2_del = () => {
 let test_type_move_nested_child = () => {
   let ctx: typctx = TypCtx.empty;
   let ze: Hazelnut.Zexp.t =
-    RAsc(
-      Lam("f", EHole),
-      LArrow(Cursor(Arrow(Num, Num)), Num),
-    );
+    RAsc(Lam("f", EHole), LArrow(Cursor(Arrow(Num, Num)), Num));
   let t: Hazelnut.Htyp.t = Arrow(Arrow(Num, Num), Num);
   let a: Hazelnut.Action.t = Move(Child(One));
   let given: option((Hazelnut.Zexp.t, Hazelnut.Htyp.t)) =
     Hazelnut.syn_action(ctx, (ze, t), a);
   let expected: option((Hazelnut.Zexp.t, Hazelnut.Htyp.t)) =
     Some((
-      RAsc(
-        Lam("f", EHole),
-        LArrow(LArrow(Cursor(Num), Num), Num),
-      ),
+      RAsc(Lam("f", EHole), LArrow(LArrow(Cursor(Num), Num), Num)),
       Arrow(Arrow(Num, Num), Num),
     ));
   check(zexp_htyp, "same", given, expected);
@@ -209,20 +195,14 @@ let test_type_move_nested_child = () => {
 let test_type_move_nested_parent = () => {
   let ctx: typctx = TypCtx.empty;
   let ze: Hazelnut.Zexp.t =
-    RAsc(
-      Lam("f", EHole),
-      LArrow(LArrow(Cursor(Num), Num), Num),
-    );
+    RAsc(Lam("f", EHole), LArrow(LArrow(Cursor(Num), Num), Num));
   let t: Hazelnut.Htyp.t = Arrow(Arrow(Num, Num), Num);
   let a: Hazelnut.Action.t = Move(Parent);
   let given: option((Hazelnut.Zexp.t, Hazelnut.Htyp.t)) =
     Hazelnut.syn_action(ctx, (ze, t), a);
   let expected: option((Hazelnut.Zexp.t, Hazelnut.Htyp.t)) =
     Some((
-      RAsc(
-        Lam("f", EHole),
-        LArrow(Cursor(Arrow(Num, Num)), Num),
-      ),
+      RAsc(Lam("f", EHole), LArrow(Cursor(Arrow(Num, Num)), Num)),
       Arrow(Arrow(Num, Num), Num),
     ));
   check(zexp_htyp, "same", given, expected);

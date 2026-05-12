@@ -351,7 +351,10 @@ let test_saconasc_4_compound = () => {
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
     Some((
-      Hazelnut.Zexp.RAsc(Plus(Lit(1), Plus(Lit(2), Lit(3))), Cursor(Num)),
+      Hazelnut.Zexp.RAsc(
+        Plus(Lit(1), Plus(Lit(2), Lit(3))),
+        Cursor(Num),
+      ),
       Hazelnut.Htyp.Num,
     ));
   check(zexp_htyp, "same", given, expected);
@@ -380,10 +383,7 @@ let test_saconvar_2 = () => {
   let a: Hazelnut.Action.t = Construct(Hazelnut.Shape.Var("x"));
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
-    Some((
-      Hazelnut.Zexp.NEHole(Cursor(Var("x"))),
-      Hazelnut.Htyp.Hole,
-    ));
+    Some((Hazelnut.Zexp.NEHole(Cursor(Var("x"))), Hazelnut.Htyp.Hole));
   check(zexp_htyp, "same", given, expected);
 };
 
@@ -539,8 +539,7 @@ let test_saconnehole_2 = () => {
 // Wrap a compound expression (not a leaf) in NEHole.
 let test_saconnehole_3_compound = () => {
   let ctx: typctx = TypCtx.singleton("f", Hazelnut.Htyp.Arrow(Num, Num));
-  let ze: Hazelnut.Zexp.t =
-    Cursor(Ap(Var("f"), Plus(Lit(1), Lit(2))));
+  let ze: Hazelnut.Zexp.t = Cursor(Ap(Var("f"), Plus(Lit(1), Lit(2))));
   let t: Hazelnut.Htyp.t = Num;
   let a: Hazelnut.Action.t = Construct(Hazelnut.Shape.NEHole);
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
@@ -580,10 +579,7 @@ let test_saconaparr_2_codomain = () => {
   let a: Hazelnut.Action.t = Construct(Hazelnut.Shape.Ap);
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
-    Some((
-      Hazelnut.Zexp.RAp(Var("f"), Cursor(EHole)),
-      Hazelnut.Htyp.Num,
-    ));
+    Some((Hazelnut.Zexp.RAp(Var("f"), Cursor(EHole)), Hazelnut.Htyp.Num));
   check(zexp_htyp, "same", given, expected);
 };
 
@@ -659,10 +655,7 @@ let test_saconplus1_1 = () => {
   let a: Hazelnut.Action.t = Construct(Hazelnut.Shape.Plus);
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
-    Some((
-      Hazelnut.Zexp.RPlus(Lit(1), Cursor(EHole)),
-      Hazelnut.Htyp.Num,
-    ));
+    Some((Hazelnut.Zexp.RPlus(Lit(1), Cursor(EHole)), Hazelnut.Htyp.Num));
   check(zexp_htyp, "same", given, expected);
 };
 
@@ -688,10 +681,7 @@ let test_saconplus1_3_hole = () => {
   let a: Hazelnut.Action.t = Construct(Hazelnut.Shape.Plus);
   let given = Hazelnut.syn_action(ctx, (ze, t), a);
   let expected =
-    Some((
-      Hazelnut.Zexp.RPlus(EHole, Cursor(EHole)),
-      Hazelnut.Htyp.Num,
-    ));
+    Some((Hazelnut.Zexp.RPlus(EHole, Cursor(EHole)), Hazelnut.Htyp.Num));
   check(zexp_htyp, "same", given, expected);
 };
 

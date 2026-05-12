@@ -36,8 +36,7 @@ let test_sasc_2 = () => {
 // SAsc whose body is itself an ascription of a non-value.
 let test_sasc_3 = () => {
   let ctx: typctx = TypCtx.empty;
-  let he: Hazelnut.Hexp.t =
-    Asc(Asc(Plus(Lit(1), Lit(2)), Num), Num);
+  let he: Hazelnut.Hexp.t = Asc(Asc(Plus(Lit(1), Lit(2)), Num), Num);
   let given: option(Hazelnut.Htyp.t) = Hazelnut.syn(ctx, he);
   let expected: option(Hazelnut.Htyp.t) = Some(Hazelnut.Htyp.Num);
   check(htyp_typ, "same option(Hazelnut.Htyp.t)", given, expected);
@@ -47,8 +46,7 @@ let test_sasc_3 = () => {
 // (Plus analyzes at Num, but we claim Arrow(Num,Num), so this fails).
 let test_sasc_4_fail = () => {
   let ctx: typctx = TypCtx.empty;
-  let he: Hazelnut.Hexp.t =
-    Asc(Plus(Lit(1), Lit(2)), Arrow(Num, Num));
+  let he: Hazelnut.Hexp.t = Asc(Plus(Lit(1), Lit(2)), Arrow(Num, Num));
   let given: option(Hazelnut.Htyp.t) = Hazelnut.syn(ctx, he);
   let expected: option(Hazelnut.Htyp.t) = None;
   check(htyp_typ, "same option(Hazelnut.Htyp.t)", given, expected);
@@ -150,7 +148,8 @@ let test_sap_3_curried = () => {
 // SAp where the argument is itself a compound Plus expression.
 let test_sap_4_compound_arg = () => {
   let ctx: typctx = TypCtx.singleton("f", Hazelnut.Htyp.Arrow(Num, Num));
-  let he: Hazelnut.Hexp.t = Ap(Var("f"), Plus(Lit(1), Plus(Lit(2), Lit(3))));
+  let he: Hazelnut.Hexp.t =
+    Ap(Var("f"), Plus(Lit(1), Plus(Lit(2), Lit(3))));
   let given: option(Hazelnut.Htyp.t) = Hazelnut.syn(ctx, he);
   let expected: option(Hazelnut.Htyp.t) = Some(Hazelnut.Htyp.Num);
   check(htyp_typ, "same option(Hazelnut.Htyp.t)", given, expected);
@@ -259,8 +258,7 @@ let test_splus_4_ap_sides = () => {
 // SPlus: an Asc on one side that analyzes at Num.
 let test_splus_5_asc_side = () => {
   let ctx: typctx = TypCtx.empty;
-  let he: Hazelnut.Hexp.t =
-    Plus(Asc(Plus(Lit(1), Lit(2)), Num), Lit(3));
+  let he: Hazelnut.Hexp.t = Plus(Asc(Plus(Lit(1), Lit(2)), Num), Lit(3));
   let given: option(Hazelnut.Htyp.t) = Hazelnut.syn(ctx, he);
   let expected: option(Hazelnut.Htyp.t) = Some(Hazelnut.Htyp.Num);
   check(htyp_typ, "same option(Hazelnut.Htyp.t)", given, expected);

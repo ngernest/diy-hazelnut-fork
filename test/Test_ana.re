@@ -59,8 +59,7 @@ let test_asubsume_4_hole_syn = () => {
 
 // TCArr: arrow compatibility decomposes component-wise.
 let test_asubsume_5_arrow_arrow = () => {
-  let ctx: typctx =
-    TypCtx.singleton("f", Hazelnut.Htyp.Arrow(Hole, Num));
+  let ctx: typctx = TypCtx.singleton("f", Hazelnut.Htyp.Arrow(Hole, Num));
   let he: Hazelnut.Hexp.t = Var("f");
   let ht: Hazelnut.Htyp.t = Arrow(Num, Num);
   let given: bool = Hazelnut.ana(ctx, he, ht);
@@ -70,8 +69,7 @@ let test_asubsume_5_arrow_arrow = () => {
 
 // Arrow-arrow INconsistent: (Num → Num) vs (Num → Arrow(Num,Num)).
 let test_asubsume_6_arrow_inconsistent = () => {
-  let ctx: typctx =
-    TypCtx.singleton("f", Hazelnut.Htyp.Arrow(Num, Num));
+  let ctx: typctx = TypCtx.singleton("f", Hazelnut.Htyp.Arrow(Num, Num));
   let he: Hazelnut.Hexp.t = Var("f");
   let ht: Hazelnut.Htyp.t = Arrow(Num, Arrow(Num, Num));
   let given: bool = Hazelnut.ana(ctx, he, ht);
@@ -149,8 +147,7 @@ let test_alam_3 = () => {
 
 // ALam with shadowing: inner x shadows outer x.
 let test_alam_4_shadow = () => {
-  let ctx: typctx =
-    TypCtx.singleton("x", Hazelnut.Htyp.Arrow(Num, Num));
+  let ctx: typctx = TypCtx.singleton("x", Hazelnut.Htyp.Arrow(Num, Num));
   // λx. (x + 1)  — inner x is Num, outer was Arrow.
   let he: Hazelnut.Hexp.t = Lam("x", Plus(Var("x"), Lit(1)));
   let ht: Hazelnut.Htyp.t = Arrow(Num, Num);

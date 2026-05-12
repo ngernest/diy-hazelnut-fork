@@ -83,8 +83,7 @@ let test_aadel_1 = () => {
   let a: Hazelnut.Action.t = Del;
   let ht: Hazelnut.Htyp.t = Arrow(Num, Num);
   let given = Hazelnut.ana_action(ctx, ze, a, ht);
-  let expected =
-    Some(Hazelnut.Zexp.RAsc(Lam("f", Lit(1)), Cursor(Hole)));
+  let expected = Some(Hazelnut.Zexp.RAsc(Lam("f", Lit(1)), Cursor(Hole)));
   check(zexp_typ, "same", given, expected);
 };
 
@@ -109,8 +108,7 @@ let test_aadel_2 = () => {
 // Del applied through AAZipLam: inside a lambda body analyzed at Num.
 let test_aadel_3_zip_lam = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    Lam("x", Cursor(Plus(Lit(1), Lit(2))));
+  let ze: Hazelnut.Zexp.t = Lam("x", Cursor(Plus(Lit(1), Lit(2))));
   let a: Hazelnut.Action.t = Del;
   let ht: Hazelnut.Htyp.t = Arrow(Num, Num);
   let given = Hazelnut.ana_action(ctx, ze, a, ht);
@@ -153,7 +151,10 @@ let test_aaconasc_3_compound = () => {
   let given = Hazelnut.ana_action(ctx, ze, a, ht);
   let expected =
     Some(
-      Hazelnut.Zexp.RAsc(Plus(Lit(1), Plus(Lit(2), Lit(3))), Cursor(Num)),
+      Hazelnut.Zexp.RAsc(
+        Plus(Lit(1), Plus(Lit(2), Lit(3))),
+        Cursor(Num),
+      ),
     );
   check(zexp_typ, "same", given, expected);
 };
@@ -199,8 +200,7 @@ let test_aaconvar_3_hole_type = () => {
 
 // Arrow consistent with Arrow via TCArr.
 let test_aaconvar_4_arrow_consistent = () => {
-  let ctx: typctx =
-    TypCtx.singleton("f", Hazelnut.Htyp.Arrow(Hole, Num));
+  let ctx: typctx = TypCtx.singleton("f", Hazelnut.Htyp.Arrow(Hole, Num));
   let ze: Hazelnut.Zexp.t = Cursor(EHole);
   let a: Hazelnut.Action.t = Construct(Var("f"));
   let ht: Hazelnut.Htyp.t = Arrow(Num, Num);
@@ -355,8 +355,7 @@ let test_aafinish_2_lam_arrow = () => {
 // Finishing a lambda at Num must fail (ALam needs an arrow, ASubsume fails).
 let test_aafinish_3_fail_lam_num = () => {
   let ctx: typctx = TypCtx.empty;
-  let ze: Hazelnut.Zexp.t =
-    Cursor(NEHole(Lam("x", Lit(1))));
+  let ze: Hazelnut.Zexp.t = Cursor(NEHole(Lam("x", Lit(1))));
   let a: Hazelnut.Action.t = Finish;
   let ht: Hazelnut.Htyp.t = Num;
   let given = Hazelnut.ana_action(ctx, ze, a, ht);
@@ -507,7 +506,11 @@ let ana_action_tests = [
   ("test_aazip_lam_1", `Quick, test_aazip_lam_1),
   ("test_aazip_lam_2_mahole", `Quick, test_aazip_lam_2_mahole),
   ("test_aazip_lam_3_construct_ap", `Quick, test_aazip_lam_3_construct_ap),
-  ("test_aazip_lam_4_fail_not_arrow", `Quick, test_aazip_lam_4_fail_not_arrow),
+  (
+    "test_aazip_lam_4_fail_not_arrow",
+    `Quick,
+    test_aazip_lam_4_fail_not_arrow,
+  ),
   // AASubsume
   ("test_aasubsume_1_con_ap", `Quick, test_aasubsume_1_con_ap),
   (

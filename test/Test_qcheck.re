@@ -10,35 +10,36 @@ module TypCtx = Map.Make(String);
 // =====================================================================
 
 let gen_htyp: QCheck.Gen.t(Hazelnut.Htyp.t) = {
-  let open QCheck.Gen;
-  sized(
-    fix((self, n) =>
-      if (n <= 0) {
-        oneof([pure(Hazelnut.Htyp.Num), pure(Hazelnut.Htyp.Hole)]);
-      } else {
-        frequency([
-          (3, pure(Hazelnut.Htyp.Num)),
-          (3, pure(Hazelnut.Htyp.Hole)),
-          (
-            2,
-            {
-              let sub = self(n / 2);
-              map2((t1, t2) => Hazelnut.Htyp.Arrow(t1, t2), sub, sub);
-            },
-          ),
-        ]);
-      }
-    ),
+  QCheck.Gen.(
+    sized(
+      fix((self, n) =>
+        if (n <= 0) {
+          oneof([pure(Hazelnut.Htyp.Num), pure(Hazelnut.Htyp.Hole)]);
+        } else {
+          frequency([
+            (3, pure(Hazelnut.Htyp.Num)),
+            (3, pure(Hazelnut.Htyp.Hole)),
+            (
+              2,
+              {
+                let sub = self(n / 2);
+                map2((t1, t2) => Hazelnut.Htyp.Arrow(t1, t2), sub, sub);
+              },
+            ),
+          ]);
+        }
+      ),
+    )
   );
 };
 
 let gen_varname: QCheck.Gen.t(string) = {
-  let open QCheck.Gen;
-  oneofl(["x", "y", "z", "f", "g"]);
+  QCheck.Gen.(oneofl(["x", "y", "z", "f", "g"]));
 };
 
-let gen_hexp = (ctx: list((string, Hazelnut.Htyp.t))): QCheck.Gen.t(Hazelnut.Hexp.t) => {
-  let open QCheck.Gen;
+let gen_hexp =
+    (ctx: list((string, Hazelnut.Htyp.t))): QCheck.Gen.t(Hazelnut.Hexp.t) => {
+  open QCheck.Gen;
   let vars = List.map(((x, _)) => x, ctx);
   sized(
     fix((self, n) =>
@@ -64,22 +65,8 @@ let gen_hexp = (ctx: list((string, Hazelnut.Htyp.t))): QCheck.Gen.t(Hazelnut.Hex
             (2, map2((e1, e2) => Hazelnut.Hexp.Plus(e1, e2), sub, sub)),
             (2, map2((e1, e2) => Hazelnut.Hexp.Ap(e1, e2), sub, sub)),
             (1, map(e => Hazelnut.Hexp.NEHole(e), sub)),
-            (
-              1,
-              map2(
-                (e, t) => Hazelnut.Hexp.Asc(e, t),
-                sub,
-                gen_htyp,
-              ),
-            ),
-            (
-              1,
-              map2(
-                (x, e) => Hazelnut.Hexp.Lam(x, e),
-                gen_varname,
-                sub,
-              ),
-            ),
+            (1, map2((e, t) => Hazelnut.Hexp.Asc(e, t), sub, gen_htyp)),
+            (1, map2((x, e) => Hazelnut.Hexp.Lam(x, e), gen_varname, sub)),
           ]
           @ (
             switch (vars) {
@@ -94,7 +81,7 @@ let gen_hexp = (ctx: list((string, Hazelnut.Htyp.t))): QCheck.Gen.t(Hazelnut.Hex
 };
 
 let gen_ztyp_from_htyp: QCheck.Gen.t((Hazelnut.Ztyp.t, Hazelnut.Htyp.t)) = {
-  let open QCheck.Gen;
+  open QCheck.Gen;
   let rec go = (t: Hazelnut.Htyp.t): QCheck.Gen.t(Hazelnut.Ztyp.t) =>
     switch (t) {
     | Hazelnut.Htyp.Arrow(t1, t2) =>
@@ -111,7 +98,7 @@ let gen_ztyp_from_htyp: QCheck.Gen.t((Hazelnut.Ztyp.t, Hazelnut.Htyp.t)) = {
 };
 
 let gen_zexp_from_hexp: QCheck.Gen.t((Hazelnut.Zexp.t, Hazelnut.Hexp.t)) = {
-  let open QCheck.Gen;
+  open QCheck.Gen;
   let rec go_typ = (t: Hazelnut.Htyp.t): QCheck.Gen.t(Hazelnut.Ztyp.t) =>
     switch (t) {
     | Hazelnut.Htyp.Arrow(t1, t2) =>
@@ -174,7 +161,7 @@ let prop_consistent_reflexive =
     t =>
     try(Hazelnut.consistent(t, t)) {
     | Hazelnut.Unimplemented => true
-    },
+    }
   );
 
 // =====================================================================
@@ -184,15 +171,13 @@ let prop_consistent_symmetric =
   QCheck.Test.make(
     ~name="consistent is symmetric",
     ~count=200,
-    QCheck.make(
-      QCheck.Gen.pair(gen_htyp, gen_htyp),
-      ~print=((t1, t2)) =>
-        "(" ++ show_htyp(t1) ++ ", " ++ show_htyp(t2) ++ ")",
+    QCheck.make(QCheck.Gen.pair(gen_htyp, gen_htyp), ~print=((t1, t2)) =>
+      "(" ++ show_htyp(t1) ++ ", " ++ show_htyp(t2) ++ ")"
     ),
     ((t1, t2)) =>
     try(Hazelnut.consistent(t1, t2) == Hazelnut.consistent(t2, t1)) {
     | Hazelnut.Unimplemented => true
-    },
+    }
   );
 
 // =====================================================================
@@ -202,15 +187,13 @@ let prop_inconsistent_negation =
   QCheck.Test.make(
     ~name="inconsistent = !consistent",
     ~count=200,
-    QCheck.make(
-      QCheck.Gen.pair(gen_htyp, gen_htyp),
-      ~print=((t1, t2)) =>
-        "(" ++ show_htyp(t1) ++ ", " ++ show_htyp(t2) ++ ")",
+    QCheck.make(QCheck.Gen.pair(gen_htyp, gen_htyp), ~print=((t1, t2)) =>
+      "(" ++ show_htyp(t1) ++ ", " ++ show_htyp(t2) ++ ")"
     ),
     ((t1, t2)) =>
     try(Hazelnut.inconsistent(t1, t2) == !Hazelnut.consistent(t1, t2)) {
     | Hazelnut.Unimplemented => true
-    },
+    }
   );
 
 // =====================================================================
@@ -224,7 +207,7 @@ let prop_erase_typ_cursor_id =
     t =>
     try(Hazelnut.Htyp.compare(Hazelnut.erase_typ(Cursor(t)), t) == 0) {
     | Hazelnut.Unimplemented => true
-    },
+    }
   );
 
 // =====================================================================
@@ -238,7 +221,7 @@ let prop_erase_exp_cursor_id =
     e =>
     try(Hazelnut.Hexp.compare(Hazelnut.erase_exp(Cursor(e)), e) == 0) {
     | Hazelnut.Unimplemented => true
-    },
+    }
   );
 
 // =====================================================================
@@ -249,15 +232,13 @@ let prop_erase_exp_roundtrip =
   QCheck.Test.make(
     ~name="erase_exp(ze) = e when ze is built from e",
     ~count=200,
-    QCheck.make(
-      gen_zexp_from_hexp,
-      ~print=((ze, e)) =>
-        "ze=" ++ show_zexp(ze) ++ " e=" ++ show_hexp(e),
+    QCheck.make(gen_zexp_from_hexp, ~print=((ze, e)) =>
+      "ze=" ++ show_zexp(ze) ++ " e=" ++ show_hexp(e)
     ),
     ((ze, e)) =>
     try(Hazelnut.Hexp.compare(Hazelnut.erase_exp(ze), e) == 0) {
     | Hazelnut.Unimplemented => true
-    },
+    }
   );
 
 // =====================================================================
@@ -266,26 +247,27 @@ let prop_erase_exp_roundtrip =
 // then syn(ctx, erase(ze')) = Some(t').
 // =====================================================================
 let gen_action: QCheck.Gen.t(Hazelnut.Action.t) = {
-  let open QCheck.Gen;
-  frequency([
-    (2, pure(Hazelnut.Action.Move(Child(One)))),
-    (2, pure(Hazelnut.Action.Move(Child(Two)))),
-    (2, pure(Hazelnut.Action.Move(Parent))),
-    (3, pure(Hazelnut.Action.Del)),
-    (3, pure(Hazelnut.Action.Finish)),
-    (1, pure(Hazelnut.Action.Construct(Arrow))),
-    (1, pure(Hazelnut.Action.Construct(Num))),
-    (2, pure(Hazelnut.Action.Construct(Asc))),
-    (1, map(x => Hazelnut.Action.Construct(Var(x)), gen_varname)),
-    (1, map(x => Hazelnut.Action.Construct(Lam(x)), gen_varname)),
-    (2, pure(Hazelnut.Action.Construct(Ap))),
-    (
-      1,
-      map(n => Hazelnut.Action.Construct(Lit(n)), QCheck.Gen.small_nat),
-    ),
-    (2, pure(Hazelnut.Action.Construct(Plus))),
-    (1, pure(Hazelnut.Action.Construct(NEHole))),
-  ]);
+  QCheck.Gen.(
+    frequency([
+      (2, pure(Hazelnut.Action.Move(Child(One)))),
+      (2, pure(Hazelnut.Action.Move(Child(Two)))),
+      (2, pure(Hazelnut.Action.Move(Parent))),
+      (3, pure(Hazelnut.Action.Del)),
+      (3, pure(Hazelnut.Action.Finish)),
+      (1, pure(Hazelnut.Action.Construct(Arrow))),
+      (1, pure(Hazelnut.Action.Construct(Num))),
+      (2, pure(Hazelnut.Action.Construct(Asc))),
+      (1, map(x => Hazelnut.Action.Construct(Var(x)), gen_varname)),
+      (1, map(x => Hazelnut.Action.Construct(Lam(x)), gen_varname)),
+      (2, pure(Hazelnut.Action.Construct(Ap))),
+      (
+        1,
+        map(n => Hazelnut.Action.Construct(Lit(n)), QCheck.Gen.small_nat),
+      ),
+      (2, pure(Hazelnut.Action.Construct(Plus))),
+      (1, pure(Hazelnut.Action.Construct(NEHole))),
+    ])
+  );
 };
 
 let show_action = (a: Hazelnut.Action.t): string =>
@@ -298,10 +280,7 @@ let prop_sensibility =
     QCheck.make(
       QCheck.Gen.pair(gen_zexp_from_hexp, gen_action),
       ~print=(((ze, _e), a)) =>
-        "ze="
-        ++ show_zexp(ze)
-        ++ " action="
-        ++ show_action(a),
+      "ze=" ++ show_zexp(ze) ++ " action=" ++ show_action(a)
     ),
     (((ze, _e), a)) =>
     try({
@@ -322,7 +301,7 @@ let prop_sensibility =
       };
     }) {
     | Hazelnut.Unimplemented => true
-    },
+    }
   );
 
 // =====================================================================
@@ -331,12 +310,13 @@ let prop_sensibility =
 // then erase(ze) = erase(ze') and t = t'.
 // =====================================================================
 let gen_dir: QCheck.Gen.t(Hazelnut.Dir.t) = {
-  let open QCheck.Gen;
-  oneof([
-    pure(Hazelnut.Dir.Child(One)),
-    pure(Hazelnut.Dir.Child(Two)),
-    pure(Hazelnut.Dir.Parent),
-  ]);
+  QCheck.Gen.(
+    oneof([
+      pure(Hazelnut.Dir.Child(One)),
+      pure(Hazelnut.Dir.Child(Two)),
+      pure(Hazelnut.Dir.Parent),
+    ])
+  );
 };
 
 let prop_movement_erasure_invariance =
@@ -344,8 +324,8 @@ let prop_movement_erasure_invariance =
     ~name="Theorem 2 (Movement erasure invariance)",
     ~count=500,
     QCheck.make(
-      QCheck.Gen.pair(gen_zexp_from_hexp, gen_dir),
-      ~print=(((ze, _e), _d)) => "ze=" ++ show_zexp(ze),
+      QCheck.Gen.pair(gen_zexp_from_hexp, gen_dir), ~print=(((ze, _e), _d)) =>
+      "ze=" ++ show_zexp(ze)
     ),
     (((ze, _e), d)) =>
     try({
@@ -364,7 +344,7 @@ let prop_movement_erasure_invariance =
       };
     }) {
     | Hazelnut.Unimplemented => true
-    },
+    }
   );
 
 // =====================================================================
@@ -374,10 +354,8 @@ let prop_matched_arrow_roundtrip =
   QCheck.Test.make(
     ~name="matched_arrow(Arrow(t1,t2)) = Some((t1,t2))",
     ~count=200,
-    QCheck.make(
-      QCheck.Gen.pair(gen_htyp, gen_htyp),
-      ~print=((t1, t2)) =>
-        "(" ++ show_htyp(t1) ++ ", " ++ show_htyp(t2) ++ ")",
+    QCheck.make(QCheck.Gen.pair(gen_htyp, gen_htyp), ~print=((t1, t2)) =>
+      "(" ++ show_htyp(t1) ++ ", " ++ show_htyp(t2) ++ ")"
     ),
     ((t1, t2)) =>
     try(
@@ -389,7 +367,7 @@ let prop_matched_arrow_roundtrip =
       }
     ) {
     | Hazelnut.Unimplemented => true
-    },
+    }
   );
 
 let qcheck_tests =

@@ -61,10 +61,7 @@ let test_eeascl_2 = () => {
 // EEAscL with a deeply nested compound subject (Plus inside Lam, inside LAsc).
 let test_eeascl_3 = () => {
   let ze: Hazelnut.Zexp.t =
-    LAsc(
-      Lam("x", LPlus(Cursor(Var("x")), Lit(1))),
-      Arrow(Num, Num),
-    );
+    LAsc(Lam("x", LPlus(Cursor(Var("x")), Lit(1))), Arrow(Num, Num));
   let given: Hazelnut.Hexp.t = Hazelnut.erase_exp(ze);
   let expected: Hazelnut.Hexp.t =
     Asc(Lam("x", Plus(Var("x"), Lit(1))), Arrow(Num, Num));
@@ -96,10 +93,7 @@ let test_eeascr_3 = () => {
     );
   let given: Hazelnut.Hexp.t = Hazelnut.erase_exp(ze);
   let expected: Hazelnut.Hexp.t =
-    Asc(
-      Lam("f", Ap(Var("f"), Lit(1))),
-      Arrow(Arrow(Num, Num), Num),
-    );
+    Asc(Lam("f", Ap(Var("f"), Lit(1))), Arrow(Arrow(Num, Num), Num));
   check(hexp_typ, "same Hazelnut.Hexp.t", given, expected);
 };
 
@@ -178,7 +172,10 @@ let test_eeapr_2 = () => {
 // EEApR where the LEFT (non-cursor) side is a compound expression.
 let test_eeapr_3 = () => {
   let ze: Hazelnut.Zexp.t =
-    RAp(Asc(Lam("f", Var("f")), Arrow(Num, Num)), Cursor(Plus(Lit(1), Lit(2))));
+    RAp(
+      Asc(Lam("f", Var("f")), Arrow(Num, Num)),
+      Cursor(Plus(Lit(1), Lit(2))),
+    );
   let given: Hazelnut.Hexp.t = Hazelnut.erase_exp(ze);
   let expected: Hazelnut.Hexp.t =
     Ap(Asc(Lam("f", Var("f")), Arrow(Num, Num)), Plus(Lit(1), Lit(2)));
@@ -267,10 +264,7 @@ let test_eenehole_3 = () => {
   let given: Hazelnut.Hexp.t = Hazelnut.erase_exp(ze);
   let expected: Hazelnut.Hexp.t =
     NEHole(
-      Asc(
-        Plus(Ap(Var("f"), Lit(1)), Plus(Lit(2), Lit(3))),
-        Num,
-      ),
+      Asc(Plus(Ap(Var("f"), Lit(1)), Plus(Lit(2), Lit(3))), Num),
     );
   check(hexp_typ, "same Hazelnut.Hexp.t", given, expected);
 };

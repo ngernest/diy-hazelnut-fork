@@ -134,7 +134,7 @@ let matched_arrow = (t: Htyp.t): option((Htyp.t, Htyp.t)) => {
 //   ETArrR:  erase(τ̇ → τ̂) = τ̇ → erase(τ̂)
 let erase_typ = (zt: Ztyp.t): Htyp.t =>
   switch (zt) {
-  | Cursor(_) => raise(Unimplemented)   // ETTop
+  | Cursor(_) => raise(Unimplemented) // ETTop
   | LArrow(_, _) => raise(Unimplemented) // ETArrL
   | RArrow(_, _) => raise(Unimplemented) // ETArrR
   };
@@ -151,15 +151,15 @@ let erase_typ = (zt: Ztyp.t): Htyp.t =>
 //   EENEHole: erase(⦇ê⦈)   = ⦇erase(ê)⦈
 let erase_exp = (ze: Zexp.t): Hexp.t =>
   switch (ze) {
-  | Cursor(_) => raise(Unimplemented)    // EETop
-  | LAsc(_, _) => raise(Unimplemented)   // EEAscL
-  | RAsc(_, _) => raise(Unimplemented)   // EEAscR
-  | Lam(_, _) => raise(Unimplemented)    // EELam
-  | LAp(_, _) => raise(Unimplemented)    // EEApL
-  | RAp(_, _) => raise(Unimplemented)    // EEApR
-  | LPlus(_, _) => raise(Unimplemented)  // EEPlusL
-  | RPlus(_, _) => raise(Unimplemented)  // EEPlusR
-  | NEHole(_) => raise(Unimplemented)    // EENEHole
+  | Cursor(_) => raise(Unimplemented) // EETop
+  | LAsc(_, _) => raise(Unimplemented) // EEAscL
+  | RAsc(_, _) => raise(Unimplemented) // EEAscR
+  | Lam(_, _) => raise(Unimplemented) // EELam
+  | LAp(_, _) => raise(Unimplemented) // EEApL
+  | RAp(_, _) => raise(Unimplemented) // EEApR
+  | LPlus(_, _) => raise(Unimplemented) // EEPlusL
+  | RPlus(_, _) => raise(Unimplemented) // EEPlusR
+  | NEHole(_) => raise(Unimplemented) // EENEHole
   };
 
 // =====================================================================
@@ -242,8 +242,8 @@ and ana = (ctx: typctx, e: Hexp.t, t: Htyp.t): bool => {
 //   SAZipPlus2    (18g): RPlus(ė, ê) — action on right of plus
 //   SAZipHole     (18h): NEHole(ê)   — action inside non-empty hole
 let syn_action =
-        (ctx: typctx, (ze: Zexp.t, t: Htyp.t), a: Action.t)
-        : option((Zexp.t, Htyp.t)) => {
+    (ctx: typctx, (ze: Zexp.t, t: Htyp.t), a: Action.t)
+    : option((Zexp.t, Htyp.t)) => {
   let _ = (ctx, ze, t, a);
   raise(Unimplemented);
 }
