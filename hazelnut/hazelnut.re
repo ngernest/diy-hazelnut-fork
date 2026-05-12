@@ -121,8 +121,11 @@ let inconsistent = (t1: Htyp.t, t2: Htyp.t): bool => {
 //   MAArr:  (τ₁→τ₂) ▸→ (τ₁, τ₂)
 //   MAHole: ⦇⦈ ▸→ (⦇⦈, ⦇⦈)
 let matched_arrow = (t: Htyp.t): option((Htyp.t, Htyp.t)) => {
-  let _ = t;
-  raise(Unimplemented);
+  switch (t) {
+  | Arrow(t1, t2) => Some((t1, t2))
+  | Hole => Some((Hole, Hole))
+  | _ => None
+  };
 };
 
 // =====================================================================
