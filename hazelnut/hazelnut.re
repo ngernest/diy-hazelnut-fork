@@ -114,8 +114,7 @@ let rec consistent = (t1: Htyp.t, t2: Htyp.t): bool => {
 
 // Type inconsistency (Definition 2): τ ⌿~ τ'  iff  ¬(τ ~ τ')
 let inconsistent = (t1: Htyp.t, t2: Htyp.t): bool => {
-  let _ = (t1, t2);
-  raise(Unimplemented);
+  !consistent(t1, t2);
 };
 
 // Matched arrow types (Definition 3, Figure 9):
