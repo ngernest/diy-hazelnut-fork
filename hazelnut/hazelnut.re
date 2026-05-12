@@ -140,11 +140,11 @@ let matched_arrow = (t: Htyp.t): option((Htyp.t, Htyp.t)) => {
 //   ETTop:   erase(▶τ̇◀)   = τ̇
 //   ETArrL:  erase(τ̂ → τ̇) = erase(τ̂) → τ̇
 //   ETArrR:  erase(τ̇ → τ̂) = τ̇ → erase(τ̂)
-let erase_typ = (zt: Ztyp.t): Htyp.t =>
+let rec erase_typ = (zt: Ztyp.t): Htyp.t =>
   switch (zt) {
-  | Cursor(_) => raise(Unimplemented) // ETTop
-  | LArrow(_, _) => raise(Unimplemented) // ETArrL
-  | RArrow(_, _) => raise(Unimplemented) // ETArrR
+  | Cursor(ht) => ht // ETTop
+  | LArrow(t_hat, t_dot) => Arrow(erase_typ(t_hat), t_dot) // ETArrL
+  | RArrow(t_dot, t_hat) => Arrow(t_dot, erase_typ(t_hat)) // ETArrR
   };
 
 // Expression cursor erasure (Appendix A.2.2):
