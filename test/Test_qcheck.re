@@ -16,7 +16,7 @@ let gen_htyp: QCheck.Gen.t(Hazelnut.Htyp.t) = {
         if (n <= 0) {
           oneof([pure(Hazelnut.Htyp.Num), pure(Hazelnut.Htyp.Hole)]);
         } else {
-          frequency([
+          oneof_weighted([
             (3, pure(Hazelnut.Htyp.Num)),
             (3, pure(Hazelnut.Htyp.Hole)),
             (
@@ -34,7 +34,7 @@ let gen_htyp: QCheck.Gen.t(Hazelnut.Htyp.t) = {
 };
 
 let gen_varname: QCheck.Gen.t(string) = {
-  QCheck.Gen.(oneofl(["x", "y", "z", "f", "g"]));
+  QCheck.Gen.(oneof_list(["x", "y", "z", "f", "g"]));
 };
 
 let gen_hexp =
@@ -46,21 +46,21 @@ let gen_hexp =
       if (n <= 0) {
         let leaves =
           [
-            (3, map(n => Hazelnut.Hexp.Lit(n), small_nat)),
+            (3, map(n => Hazelnut.Hexp.Lit(n), nat_small)),
             (2, pure(Hazelnut.Hexp.EHole)),
           ]
           @ (
             switch (vars) {
             | [] => []
-            | _ => [(3, map(x => Hazelnut.Hexp.Var(x), oneofl(vars)))]
+            | _ => [(3, map(x => Hazelnut.Hexp.Var(x), oneof_list(vars)))]
             }
           );
-        frequency(leaves);
+        oneof_weighted(leaves);
       } else {
         let sub = self(n / 2);
         let branches =
           [
-            (3, map(n => Hazelnut.Hexp.Lit(n), small_nat)),
+            (3, map(n => Hazelnut.Hexp.Lit(n), nat_small)),
             (2, pure(Hazelnut.Hexp.EHole)),
             (2, map2((e1, e2) => Hazelnut.Hexp.Plus(e1, e2), sub, sub)),
             (2, map2((e1, e2) => Hazelnut.Hexp.Ap(e1, e2), sub, sub)),
@@ -71,10 +71,10 @@ let gen_hexp =
           @ (
             switch (vars) {
             | [] => []
-            | _ => [(3, map(x => Hazelnut.Hexp.Var(x), oneofl(vars)))]
+            | _ => [(3, map(x => Hazelnut.Hexp.Var(x), oneof_list(vars)))]
             }
           );
-        frequency(branches);
+        oneof_weighted(branches);
       }
     ),
   );
@@ -85,7 +85,7 @@ let gen_ztyp_from_htyp: QCheck.Gen.t((Hazelnut.Ztyp.t, Hazelnut.Htyp.t)) = {
   let rec go = (t: Hazelnut.Htyp.t): QCheck.Gen.t(Hazelnut.Ztyp.t) =>
     switch (t) {
     | Hazelnut.Htyp.Arrow(t1, t2) =>
-      frequency([
+      oneof_weighted([
         (2, pure(Hazelnut.Ztyp.Cursor(t))),
         (1, map(zt1 => Hazelnut.Ztyp.LArrow(zt1, t2), go(t1))),
         (1, map(zt2 => Hazelnut.Ztyp.RArrow(t1, zt2), go(t2))),
@@ -102,7 +102,7 @@ let gen_zexp_from_hexp: QCheck.Gen.t((Hazelnut.Zexp.t, Hazelnut.Hexp.t)) = {
   let rec go_typ = (t: Hazelnut.Htyp.t): QCheck.Gen.t(Hazelnut.Ztyp.t) =>
     switch (t) {
     | Hazelnut.Htyp.Arrow(t1, t2) =>
-      frequency([
+      oneof_weighted([
         (2, pure(Hazelnut.Ztyp.Cursor(t))),
         (1, map(zt1 => Hazelnut.Ztyp.LArrow(zt1, t2), go_typ(t1))),
         (1, map(zt2 => Hazelnut.Ztyp.RArrow(t1, zt2), go_typ(t2))),
@@ -112,30 +112,30 @@ let gen_zexp_from_hexp: QCheck.Gen.t((Hazelnut.Zexp.t, Hazelnut.Hexp.t)) = {
   let rec go = (e: Hazelnut.Hexp.t): QCheck.Gen.t(Hazelnut.Zexp.t) =>
     switch (e) {
     | Hazelnut.Hexp.Lam(x, body) =>
-      frequency([
+      oneof_weighted([
         (2, pure(Hazelnut.Zexp.Cursor(e))),
         (1, map(zb => Hazelnut.Zexp.Lam(x, zb), go(body))),
       ])
     | Hazelnut.Hexp.Ap(e1, e2) =>
-      frequency([
+      oneof_weighted([
         (2, pure(Hazelnut.Zexp.Cursor(e))),
         (1, map(ze1 => Hazelnut.Zexp.LAp(ze1, e2), go(e1))),
         (1, map(ze2 => Hazelnut.Zexp.RAp(e1, ze2), go(e2))),
       ])
     | Hazelnut.Hexp.Plus(e1, e2) =>
-      frequency([
+      oneof_weighted([
         (2, pure(Hazelnut.Zexp.Cursor(e))),
         (1, map(ze1 => Hazelnut.Zexp.LPlus(ze1, e2), go(e1))),
         (1, map(ze2 => Hazelnut.Zexp.RPlus(e1, ze2), go(e2))),
       ])
     | Hazelnut.Hexp.Asc(e1, t) =>
-      frequency([
+      oneof_weighted([
         (2, pure(Hazelnut.Zexp.Cursor(e))),
         (1, map(ze1 => Hazelnut.Zexp.LAsc(ze1, t), go(e1))),
         (1, map(zt => Hazelnut.Zexp.RAsc(e1, zt), go_typ(t))),
       ])
     | Hazelnut.Hexp.NEHole(e1) =>
-      frequency([
+      oneof_weighted([
         (2, pure(Hazelnut.Zexp.Cursor(e))),
         (1, map(ze1 => Hazelnut.Zexp.NEHole(ze1), go(e1))),
       ])
@@ -248,7 +248,7 @@ let prop_erase_exp_roundtrip =
 // =====================================================================
 let gen_action: QCheck.Gen.t(Hazelnut.Action.t) = {
   QCheck.Gen.(
-    frequency([
+    oneof_weighted([
       (2, pure(Hazelnut.Action.Move(Child(One)))),
       (2, pure(Hazelnut.Action.Move(Child(Two)))),
       (2, pure(Hazelnut.Action.Move(Parent))),
@@ -262,7 +262,7 @@ let gen_action: QCheck.Gen.t(Hazelnut.Action.t) = {
       (2, pure(Hazelnut.Action.Construct(Ap))),
       (
         1,
-        map(n => Hazelnut.Action.Construct(Lit(n)), QCheck.Gen.small_nat),
+        map(n => Hazelnut.Action.Construct(Lit(n)), QCheck.Gen.nat_small),
       ),
       (2, pure(Hazelnut.Action.Construct(Plus))),
       (1, pure(Hazelnut.Action.Construct(NEHole))),
