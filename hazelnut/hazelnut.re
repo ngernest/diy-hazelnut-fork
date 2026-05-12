@@ -101,9 +101,15 @@ exception Unimplemented;
 //   TCHole1: ⦇⦈ ~ τ                   (hole is consistent with anything)
 //   TCHole2: τ ~ ⦇⦈                   (symmetric)
 //   TCArr:   τ₁ ~ τ₁' ∧ τ₂ ~ τ₂'  →  (τ₁→τ₂) ~ (τ₁'→τ₂')
-let consistent = (t1: Htyp.t, t2: Htyp.t): bool => {
-  let _ = (t1, t2);
-  raise(Unimplemented);
+let rec consistent = (t1: Htyp.t, t2: Htyp.t): bool => {
+  switch (t1, t2) {
+  | (Hole, _)
+  | (_, Hole)
+  | (Num, Num) => true
+  | (Arrow(t11, t12), Arrow(t1', t2')) =>
+    consistent(t11, t1') && consistent(t12, t2')
+  | _ => false
+  };
 };
 
 // Type inconsistency (Definition 2): τ ⌿~ τ'  iff  ¬(τ ~ τ')
