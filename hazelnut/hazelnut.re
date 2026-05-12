@@ -21,8 +21,8 @@ module Hexp = {
     | Lit(int)
     | Plus(t, t)
     | Asc(t, Htyp.t)
-    | EHole
-    | NEHole(t);
+    | EHole // Empty Hole
+    | NEHole(t); // Non-empty hole
 };
 
 module Ztyp = {
@@ -157,17 +157,17 @@ let rec erase_typ = (zt: Ztyp.t): Htyp.t =>
 //   EEPlusL:  erase(ê + ė) = erase(ê) + ė
 //   EEPlusR:  erase(ė + ê) = ė + erase(ê)
 //   EENEHole: erase(⦇ê⦈)   = ⦇erase(ê)⦈
-let erase_exp = (ze: Zexp.t): Hexp.t =>
-  switch (ze) {
-  | Cursor(_) => raise(Unimplemented) // EETop
-  | LAsc(_, _) => raise(Unimplemented) // EEAscL
-  | RAsc(_, _) => raise(Unimplemented) // EEAscR
-  | Lam(_, _) => raise(Unimplemented) // EELam
-  | LAp(_, _) => raise(Unimplemented) // EEApL
-  | RAp(_, _) => raise(Unimplemented) // EEApR
-  | LPlus(_, _) => raise(Unimplemented) // EEPlusL
-  | RPlus(_, _) => raise(Unimplemented) // EEPlusR
-  | NEHole(_) => raise(Unimplemented) // EENEHole
+let rec erase_exp = (zexp: Zexp.t): Hexp.t =>
+  switch (zexp) {
+  | Cursor(hexp) => hexp // EETop
+  | LAsc(e_hat, t_dot) => Asc(erase_exp(e_hat), t_dot) // EEAscL
+  | RAsc(e_dot, t_hat) => Asc(e_dot, erase_typ(t_hat)) // EEAscR
+  | Lam(x, e_hat) => Lam(x, erase_exp(e_hat)) // EELam
+  | LAp(e_hat, e_dot) => Ap(erase_exp(e_hat), e_dot) // EEApL
+  | RAp(e_dot, e_hat) => Ap(e_dot, erase_exp(e_hat)) // EEApR
+  | LPlus(e_hat, e_dot) => Plus(erase_exp(e_hat), e_dot) // EEPlusL
+  | RPlus(e_dot, e_hat) => Plus(e_dot, erase_exp(e_hat)) // EEPlusR
+  | NEHole(e_hat) => NEHole(erase_exp(e_hat)) // EENEHole
   };
 
 // =====================================================================
