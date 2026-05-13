@@ -268,6 +268,22 @@ and ana = (ctx: typctx, e: Hexp.t, t: Htyp.t): bool => {
 //   5. Zipper rules       — recursive propagation through the tree
 // =====================================================================
 
+let type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
+  switch (zty, action) {
+  | (Cursor(Arrow(t1, t2)), Move(Child(One))) =>
+    // TMArrChild1
+    Some(LArrow(Cursor(t1), t2))
+  | (Cursor(Arrow(t1, t2)), Move(Child(Two))) =>
+    // TMArrChild2
+    Some(RArrow(t1, Cursor(t2)))
+  | (LArrow(Cursor(t1), t2), Move(Parent))
+  | (RArrow(t1, Cursor(t2)), Move(Parent)) =>
+    // TMArrParent1, TMArrParent2
+    Some(Cursor(Arrow(t1, t2)))
+  | (Cursor(_), Del) => Some(Cursor(Hole))
+  | _ => raise(Unimplemented)
+  };
+
 // Synthetic action — Γ ⊢ ê ⇒ τ --α--> ê' ⇒ τ':
 //
 // Base cases on (ê, α):
