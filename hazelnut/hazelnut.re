@@ -1,5 +1,5 @@
 open Sexplib.Std;
-// open Monad_lib.Monad; // Uncomment to use the let*/let+ monad syntax
+open Monad_lib.Monad; // Uncomment to use the let*/let+ monad syntax
 
 let compare_string = String.compare;
 let compare_int = Int.compare;
@@ -171,7 +171,7 @@ let rec erase_exp = (zexp: Zexp.t): Hexp.t =>
   };
 
 // =====================================================================
-// STEP 3: Bidirectional type system (Section 3.1, Figure 9)
+// STEP 3: Bidirectional type system (Section 3.1, Figure 4)
 //
 // syn and ana are mutually recursive. syn returns the synthesized type
 // (or None if the expression is ill-typed); ana returns whether the
@@ -188,9 +188,40 @@ let rec erase_exp = (zexp: Zexp.t): Hexp.t =>
 //   SNEHole (1g): Γ ⊢ e ⇒ τ                              →  Γ ⊢ ⦇e⦈ ⇒ ⦇⦈
 //
 // Note: Lam has NO synthesis rule — it can only be checked analytically.
-let syn = (ctx: typctx, e: Hexp.t): option(Htyp.t) => {
-  let _ = (ctx, e);
-  raise(Unimplemented);
+let rec syn = (ctx: typctx, e: Hexp.t): option(Htyp.t) => {
+  switch (e) {
+  | Var(x) =>
+    switch (TypCtx.find(x, ctx)) {
+    | ty => Some(ty)
+    | exception Not_found => None
+    }
+  | Ap(e1, e2) =>
+    let* t1 = syn(ctx, e1);
+    let* (t2, t) = matched_arrow(t1);
+    if (ana(ctx, e2, t2)) {
+      Some(t);
+    } else {
+      None;
+    };
+  | Lit(_) => Some(Num)
+  | Plus(e1, e2) =>
+    if (ana(ctx, e1, Num) && ana(ctx, e2, Num)) {
+      Some(Num);
+    } else {
+      None;
+    }
+  | Asc(e, ty) =>
+    if (ana(ctx, e, ty)) {
+      Some(ty);
+    } else {
+      None;
+    }
+  | EHole => Some(Hole)
+  | NEHole(e) =>
+    let+ _ = syn(ctx, e);
+    Htyp.Hole;
+  | Lam(_, _) => raise(Unimplemented) // No synthesis rule for lambdas
+  };
 }
 
 // Type analysis — Γ ⊢ e ⇐ τ:
