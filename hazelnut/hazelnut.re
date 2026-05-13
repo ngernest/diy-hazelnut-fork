@@ -228,8 +228,20 @@ let rec syn = (ctx: typctx, e: Hexp.t): option(Htyp.t) => {
 //   ALam      (2a): τ ▸→ (τ₁,τ₂), Γ,x:τ₁ ⊢ e ⇐ τ₂    →  Γ ⊢ λx.e ⇐ τ
 //   ASubsume  (2b): Γ ⊢ e ⇒ τ', τ ~ τ'                  →  Γ ⊢ e ⇐ τ
 and ana = (ctx: typctx, e: Hexp.t, t: Htyp.t): bool => {
-  let _ = (ctx, e, t);
-  raise(Unimplemented);
+  switch (e) {
+  | Lam(x, e) =>
+    switch (matched_arrow(t)) {
+    | Some((t1, t2)) =>
+      let extended_ctx = TypCtx.add(x, t1, ctx);
+      ana(extended_ctx, e, t2);
+    | None => false
+    }
+  | _ =>
+    switch (syn(ctx, e)) {
+    | Some(t') => consistent(t, t')
+    | None => false
+    }
+  };
 };
 
 // =====================================================================
