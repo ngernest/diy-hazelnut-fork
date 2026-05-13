@@ -218,8 +218,8 @@ let rec syn = (ctx: typctx, e: Hexp.t): option(Htyp.t) => {
     }
   | EHole => Some(Hole)
   | NEHole(e) =>
-    let+ _ = syn(ctx, e);
-    Htyp.Hole;
+    let* _ = syn(ctx, e);
+    Some(Htyp.Hole);
   | Lam(_, _) => None // No synthesis rule for lambdas
   };
 }
