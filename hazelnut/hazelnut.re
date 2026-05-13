@@ -252,7 +252,7 @@ and ana = (ctx: typctx, e: Hexp.t, t: Htyp.t): bool => {
 //
 //   type_action : (Ztyp.t, Action.t) → option(Ztyp.t)
 //     Type actions: move, delete, and construct on type zippers.
-//     Rules: TMArrChild1/2, TMArrParent1/2, TMDel, TConArrow, TConNum,
+//     Rules: TMArrChild1/2, TMArrParent1/2, TMDel, TMConArrow, TMConNum,
 //            TMArrZip1, TMArrZip2
 //
 //   move_exp : (Zexp.t, Dir.t) → option(Zexp.t)
@@ -268,7 +268,8 @@ and ana = (ctx: typctx, e: Hexp.t, t: Htyp.t): bool => {
 //   5. Zipper rules       — recursive propagation through the tree
 // =====================================================================
 
-let type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
+// TODO: rename this function to `type_action` when it is actually used 
+let _type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
   switch (zty, action) {
   | (Cursor(Arrow(t1, t2)), Move(Child(One))) =>
     // TMArrChild1
@@ -280,8 +281,14 @@ let type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
   | (RArrow(t1, Cursor(t2)), Move(Parent)) =>
     // TMArrParent1, TMArrParent2
     Some(Cursor(Arrow(t1, t2)))
-  | (Cursor(_), Del) => Some(Cursor(Hole))
-  | _ => raise(Unimplemented)
+  | (Cursor(_), Del) => Some(Cursor(Hole)) // TMDel
+  | (Cursor(t), Construct(Arrow)) =>
+    // TMConArrow
+    Some(RArrow(t, Cursor(Hole)))
+  | (Cursor(Hole), Construct(Num)) =>
+    // TMConNum
+    Some(Cursor(Num))
+  | _ => raise(Unimplemented) // TODO: handle zipper cases for type movement
   };
 
 // Synthetic action — Γ ⊢ ê ⇒ τ --α--> ê' ⇒ τ':
