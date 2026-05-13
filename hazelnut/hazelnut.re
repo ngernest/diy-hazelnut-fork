@@ -220,7 +220,7 @@ let rec syn = (ctx: typctx, e: Hexp.t): option(Htyp.t) => {
   | NEHole(e) =>
     let+ _ = syn(ctx, e);
     Htyp.Hole;
-  | Lam(_, _) => raise(Unimplemented) // No synthesis rule for lambdas
+  | Lam(_, _) => None // No synthesis rule for lambdas
   };
 }
 
