@@ -218,8 +218,8 @@ let rec syn = (ctx: typctx, e: Hexp.t): option(Htyp.t) => {
     }
   | EHole => Some(Hole)
   | NEHole(e) =>
-    let* _ = syn(ctx, e);
-    Some(Htyp.Hole);
+    let+ _ = syn(ctx, e);
+    Htyp.Hole;
   | Lam(_, _) => None // No synthesis rule for lambdas
   };
 }
@@ -268,8 +268,8 @@ and ana = (ctx: typctx, e: Hexp.t, t: Htyp.t): bool => {
 //   5. Zipper rules       — recursive propagation through the tree
 // =====================================================================
 
-// TODO: rename this function to `type_action` when it is actually used 
-let _type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
+// TODO: rename this function to `type_action` when it is actually used
+let rec _type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
   switch (zty, action) {
   | (Cursor(Arrow(t1, t2)), Move(Child(One))) =>
     // TMArrChild1
@@ -288,6 +288,12 @@ let _type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
   | (Cursor(Hole), Construct(Num)) =>
     // TMConNum
     Some(Cursor(Num))
+  | (LArrow(t1, t2), _) =>
+    let+ t1' = _type_action(t1, action);
+    Ztyp.LArrow(t1', t2);
+  | (RArrow(t1, t2), _) =>
+    let+ t2' = _type_action(t2, action);
+    Ztyp.RArrow(t1, t2');
   | _ => raise(Unimplemented) // TODO: handle zipper cases for type movement
   };
 
