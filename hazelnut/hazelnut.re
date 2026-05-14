@@ -294,7 +294,7 @@ let rec _type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
   | (RArrow(t1, t2), _) =>
     let+ t2' = _type_action(t2, action);
     Ztyp.RArrow(t1, t2');
-  | _ => raise(Unimplemented) // TODO: handle zipper cases for type movement
+  | _ => None
   };
 
 // Synthetic action — Γ ⊢ ê ⇒ τ --α--> ê' ⇒ τ':
