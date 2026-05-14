@@ -245,7 +245,7 @@ and ana = (ctx: typctx, e: Hexp.t, t: Htyp.t): bool => {
 };
 
 // =====================================================================
-// STEP 4: Action semantics (Section 3.3, Figures 10-11)
+// STEP 4: Action semantics (Section 3.3)
 //
 // This is the heart of Hazelnut. You will need to implement several
 // internal helpers before tackling the main action functions:
@@ -296,6 +296,19 @@ let rec _type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
     Ztyp.RArrow(t1, t2');
   | _ => None
   };
+
+// TODO: see Appendix A.3.2 for expression movement rules
+let _move_exp = (zexp: Zexp.t, action: Action.t): option(Zexp.t) => {
+  switch (zexp, action) {
+  | (Cursor(Asc(e, t)), Move(Child(One))) =>
+    // EMAscChild1
+    Some(LAsc(Cursor(e), t))
+  | (Cursor(Asc(e, t)), Move(Child(Two))) =>
+    // EMAscChild2
+    Some(RAsc(e, Cursor(t)))
+  | _ => raise(Unimplemented)
+  };
+};
 
 // Synthetic action — Γ ⊢ ê ⇒ τ --α--> ê' ⇒ τ':
 //
