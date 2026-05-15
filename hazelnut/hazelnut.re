@@ -269,7 +269,7 @@ and ana = (ctx: typctx, e: Hexp.t, t: Htyp.t): bool => {
 // =====================================================================
 
 // TODO: rename this function to `type_action` when it is actually used
-let rec _type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
+let rec type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
   switch (zty, action) {
   | (Cursor(Arrow(t1, t2)), Move(Child(One))) =>
     // TMArrChild1
@@ -281,7 +281,9 @@ let rec _type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
   | (RArrow(t1, Cursor(t2)), Move(Parent)) =>
     // TMArrParent1, TMArrParent2
     Some(Cursor(Arrow(t1, t2)))
-  | (Cursor(_), Del) => Some(Cursor(Hole)) // TMDel
+  | (Cursor(_), Del) =>
+    // TMDel
+    Some(Cursor(Hole))
   | (Cursor(t), Construct(Arrow)) =>
     // TMConArrow
     Some(RArrow(t, Cursor(Hole)))
@@ -289,16 +291,18 @@ let rec _type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
     // TMConNum
     Some(Cursor(Num))
   | (LArrow(t1, t2), _) =>
-    let+ t1' = _type_action(t1, action);
+    // TMArrZip1
+    let+ t1' = type_action(t1, action);
     Ztyp.LArrow(t1', t2);
   | (RArrow(t1, t2), _) =>
-    let+ t2' = _type_action(t2, action);
+    // TMArrZip2
+    let+ t2' = type_action(t2, action);
     Ztyp.RArrow(t1, t2');
   | _ => None
   };
 
-// Expression movement (Appendix A.3.2)
-let _move_exp = (zexp: Zexp.t, action: Action.t): option(Zexp.t) => {
+// Relative expression movement (Appendix A.3.2)
+let move_exp = (zexp: Zexp.t, action: Action.t): option(Zexp.t) => {
   switch (zexp, action) {
   | (Cursor(Asc(e, t)), Move(Child(One))) =>
     // EMAscChild1
@@ -370,11 +374,24 @@ let _move_exp = (zexp: Zexp.t, action: Action.t): option(Zexp.t) => {
 //   SAZipPlus1    (18f): LPlus(ê, ė) — action on left of plus
 //   SAZipPlus2    (18g): RPlus(ė, ê) — action on right of plus
 //   SAZipHole     (18h): NEHole(ê)   — action inside non-empty hole
+
+// TODO: add cases!
 let syn_action =
-    (ctx: typctx, (ze: Zexp.t, t: Htyp.t), a: Action.t)
+    (_ctx: typctx, (zexp: Zexp.t, t: Htyp.t), action: Action.t)
     : option((Zexp.t, Htyp.t)) => {
-  let _ = (ctx, ze, t, a);
-  raise(Unimplemented);
+  switch (zexp, action) {
+  | (Cursor(_), Del) =>
+    // SADel
+    Some((Cursor(EHole), Hole))
+  | (Cursor(e), Construct(Asc)) =>
+    // SAConVar
+    Some((RAsc(e, Cursor(t)), t))
+  
+  | _ =>
+    // SAMove
+    let+ e' = move_exp(zexp, action);
+    (e', t);
+  };
 }
 
 // Analytic action — Γ ⊢ ê --α--> ê' ⇐ τ:
