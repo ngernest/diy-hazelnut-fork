@@ -386,7 +386,10 @@ let syn_action =
   | (Cursor(e), Construct(Asc)) =>
     // SAConVar
     Some((RAsc(e, Cursor(t)), t))
-  
+  | (RAsc(e, zt), _) =>
+    // SAZipAsc2 (18c)
+    let+ zt' = type_action(zt, action);
+    (Zexp.RAsc(e, zt'), erase_typ(zt'));
   | _ =>
     // SAMove
     let+ e' = move_exp(zexp, action);
