@@ -297,7 +297,7 @@ let rec _type_action = (zty: Ztyp.t, action: Action.t): option(Ztyp.t) =>
   | _ => None
   };
 
-// TODO: see Appendix A.3.2 for expression movement rules
+// Expression movement (Appendix A.3.2)
 let _move_exp = (zexp: Zexp.t, action: Action.t): option(Zexp.t) => {
   switch (zexp, action) {
   | (Cursor(Asc(e, t)), Move(Child(One))) =>
@@ -306,7 +306,43 @@ let _move_exp = (zexp: Zexp.t, action: Action.t): option(Zexp.t) => {
   | (Cursor(Asc(e, t)), Move(Child(Two))) =>
     // EMAscChild2
     Some(RAsc(e, Cursor(t)))
-  | _ => raise(Unimplemented)
+  | (LAsc(Cursor(e), t), Move(Parent)) =>
+    // EMAscParent1
+    Some(Cursor(Asc(e, t)))
+  | (RAsc(e, Cursor(t)), Move(Parent)) =>
+    // EMAscParent2
+    Some(Cursor(Asc(e, t)))
+  | (Cursor(Lam(x, e)), Move(Child(One))) =>
+    // EMLamChild1
+    Some(Lam(x, Cursor(e)))
+  | (Lam(x, Cursor(e)), Move(Parent)) =>
+    // EMLamChild2
+    Some(Cursor(Lam(x, e)))
+  | (Cursor(Plus(e1, e2)), Move(Child(One))) =>
+    // EMPlusChild1
+    Some(LPlus(Cursor(e1), e2))
+  | (Cursor(Plus(e1, e2)), Move(Child(Two))) =>
+    // EMPlusChild2
+    Some(RPlus(e1, Cursor(e2)))
+  | (LPlus(Cursor(e1), e2), Move(Parent)) =>
+    // EMPlusParent1
+    Some(Cursor(Plus(e1, e2)))
+  | (RPlus(e1, Cursor(e2)), Move(Parent)) =>
+    // EMPlusParent2
+    Some(Cursor(Plus(e1, e2)))
+  | (LAp(Cursor(e1), e2), Move(Parent)) =>
+    // EMApParent1
+    Some(Cursor(Ap(e1, e2)))
+  | (RAp(e1, Cursor(e2)), Move(Parent)) =>
+    // EMApParent2
+    Some(Cursor(Ap(e1, e2)))
+  | (Cursor(NEHole(e)), Move(Child(One))) =>
+    // EMNEHoleChild1
+    Some(NEHole(Cursor(e)))
+  | (NEHole(Cursor(e)), Move(Parent)) =>
+    // EMNEHoleParent
+    Some(Cursor(NEHole(e)))
+  | _ => None
   };
 };
 
